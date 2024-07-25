@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import ProductCluster, SingleProduct,Offer
+from .products.products_models import ProductCluster, SingleProduct
+from .offers.offer_models import Offer
 from .admin_range.range import IntegerRangeFilter
 # Register your models here.
 class ProductAdmin(admin.ModelAdmin):

@@ -1,5 +1,5 @@
 from django.db import models
-from .constants import ProductCategory
+from .products_constants import ProductCategory
 class ProductCluster(models.Model):
     name = models.CharField(max_length=50)
     category = models.CharField(choices=ProductCategory.choices, max_length=50,default='Clutch bag')
@@ -35,9 +35,4 @@ class SingleProduct(models.Model):
     class Meta:
         verbose_name = 'Single Product'
 
-class Offer(models.Model):
-    name = models.CharField(max_length=50)
-    is_active = models.BooleanField(default=False)
-    image = models.ImageField(upload_to=None)
-    product = models.ManyToManyField(ProductCluster)
 

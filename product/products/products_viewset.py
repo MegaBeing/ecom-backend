@@ -2,8 +2,8 @@ from rest_framework import viewsets,permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 # Create your views here.
-from .models import Offer, SingleProduct
-from .serializers import ProductSerializer, OfferSerializer
+from .products_models import SingleProduct
+from .products_serializers import ProductSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):

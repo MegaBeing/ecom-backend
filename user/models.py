@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
-from product.models import SingleProduct
+from product.products.products_models import SingleProduct
 class Address(models.Model):
     pincode = models.PositiveIntegerField(null=False)
     address_line1 = models.CharField(max_length=200, null=False)
@@ -22,14 +22,3 @@ class Client(User):
     class Meta:
         verbose_name = 'Client'
     
-class Location(models.Model):
-    name = models.CharField(max_length=50, null=False)
-    state_id = models.CharField(max_length = 50)
-    state_code = models.CharField(max_length = 50)
-    state_name = models.CharField(max_length = 50)
-    country_id = models.CharField(max_length = 50)
-    country_code = models.CharField(max_length = 50)
-    country_name = models.CharField(max_length = 50)
-    latitude = models.DecimalField(max_digits=10, decimal_places=6)
-    longitude = models.DecimalField(max_digits=10, decimal_places=6)
-    wikiDataId = models.CharField(max_length = 50, null=True)
