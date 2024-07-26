@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from .models import Client, Cart , CartItem
 from product.products.products_models import SingleProduct
-from .serializers import ClientSerializer, ClientAddressSerializer, CartSerializer ,CartItemSerializer
+from .serializers import ClientSerializer, ClientAddressSerializer, CartSerializer 
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from rest_framework import status
