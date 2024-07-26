@@ -6,10 +6,11 @@ from .products_models import SingleProduct
 from .products_serializers import ProductSerializer
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SingleProduct.objects.filter(in_stock=True)
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
+    http_method_names = ['get']
 
     @action(detail=False, methods=['get'], name='category')
     def category(self, request):
