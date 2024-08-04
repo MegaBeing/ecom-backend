@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
-from django.utils import timezone
 from product.products.products_models import ProductCluster,SingleProduct
 
 class Address(models.Model):

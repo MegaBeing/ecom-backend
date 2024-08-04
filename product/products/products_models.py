@@ -12,8 +12,7 @@ class ProductCluster(models.Model):
 class SingleProduct(models.Model):
     product = models.ForeignKey(ProductCluster, on_delete=models.CASCADE, related_name='product',null = True)
     price = models.PositiveIntegerField()
-    description = models.TextField(max_length=100)
-    image = models.ImageField()
+    description = models.TextField(max_length=500)
     previous_price = models.PositiveIntegerField(blank=True,null=True)
     
     # dimensions
@@ -34,5 +33,11 @@ class SingleProduct(models.Model):
     
     class Meta:
         verbose_name = 'Single Product'
-
-
+class ProductImage(models.Model):
+    image = models.ImageField(upload_to='product_images/')
+    products = models.ForeignKey(SingleProduct, related_name='images', on_delete=models.CASCADE)
+    alt_text = models.CharField(max_length=100, blank=True)
+    
+    def __str__(self) -> str:
+        return f'{self.alt_text}'
+    

@@ -2,8 +2,8 @@ from rest_framework import viewsets,permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 # Create your views here.
-from .products_models import SingleProduct
-from .products_serializers import ProductSerializer
+from .products_models import SingleProduct, ProductImage
+from .products_serializers import ProductSerializer, ProductImageSerializer
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -41,3 +41,9 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(serializer.data)
         return Response({'error': 'Color parameter is required'}, status=400)
 
+class ProductImageViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ProductImageSerializer
+    queryset = ProductImage.objects.all()
+    permission_classes = [permissions.IsAdminUser]
+    http_method_names = ['get']
+    

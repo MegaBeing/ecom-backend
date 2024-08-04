@@ -5,6 +5,7 @@ from .models import Client
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'can_order', 'phone_number')
     list_filter = ('can_order',)
+    search_fields = ('username', 'email')
 
 admin.site.register(Client, ClientAdmin)
 
