@@ -3,10 +3,15 @@ from .models import User,Address,Cart
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone_number','shipping_address']
-    
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+        fields = ['id','first_name','last_name', 'username','email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = self.Meta.model(**validated_data)
+        if password is not None:
+            user.set_password(password)
+        user.save()
+        return user
     
 class AddressSerializer(ModelSerializer):
     class Meta:
