@@ -8,6 +8,7 @@ class ProductCluster(models.Model):
         return f'{self.name} - {self.category}'
     class Meta:
         verbose_name = 'Product Cluster'
+        permissions = [('can_review', 'can review products')]
 
 class SingleProduct(models.Model):
     product = models.ForeignKey(ProductCluster, on_delete=models.CASCADE, related_name='product',null = True)

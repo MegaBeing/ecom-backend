@@ -4,7 +4,7 @@ from .models import Order
 from rest_framework.permissions import IsAuthenticated
 from .serializers import OrderSerializer
 from .environment import API_AUTH,SHIPROCKET_URLS,SHIPROCKET_REQ_HEADER
-from user.models import Client
+from user.models import User
 import requests
 from rest_framework.response import Response
 from rest_framework import status
@@ -21,9 +21,9 @@ class OrderViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            client = Client.objects.get(pk=self.request.user.pk)
-        except Client.DoesNotExist:
-            return Response({'message': 'Client profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            client = User.objects.get(pk=self.request.user.pk)
+        except User.DoesNotExist:
+            return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if not client.can_order:
             return Response({'message': 'User cannot create orders'}, status=status.HTTP_403_FORBIDDEN)

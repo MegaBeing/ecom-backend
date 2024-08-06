@@ -1,9 +1,8 @@
-from rest_framework.serializers import ModelSerializer,IntegerField
-from .models import Client,Address,Cart,CartItem
-from product.products.products_serializers import ProductSerializer
-class ClientSerializer(ModelSerializer):
+from rest_framework.serializers import ModelSerializer
+from .models import User,Address,Cart
+class UserSerializer(ModelSerializer):
     class Meta:
-        model = Client
+        model = User
         fields = ['username', 'email', 'phone_number','shipping_address']
     
     def update(self, instance, validated_data):
@@ -14,15 +13,15 @@ class AddressSerializer(ModelSerializer):
         model = Address
         fields = '__all__'
         
-class ClientAddressSerializer(ModelSerializer):
+class UserAddressSerializer(ModelSerializer):
     shipping_address = AddressSerializer()
     class Meta:
-        model = Client
+        model = User
         fields = ['shipping_address']
     
     def create(self, validated_data):
         shipping_address = validated_data.pop('shipping_address')
-        client = Client.objects.create(**validated_data)
+        client = User.objects.create(**validated_data)
         client.shipping_address = Address.objects.create(**shipping_address)
         client.save()
         return client

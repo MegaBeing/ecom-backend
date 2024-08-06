@@ -1,18 +1,19 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-from .models import Client, Cart , CartItem
+from .models import User, Cart , CartItem
 from product.products.products_models import SingleProduct
-from .serializers import ClientSerializer, ClientAddressSerializer, CartSerializer 
-from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer, UserAddressSerializer, CartSerializer 
+from rest_framework import permissions
 from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 # Create your views here.
 
-class ClientViewSet(ModelViewSet):
-    queryset = Client.objects.all()
-    serializer_class = ClientSerializer
-    permission_classes = [IsAuthenticated]
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
     def get_queryset(self):
         user = self.request.user
         queryset = self.queryset
@@ -20,11 +21,12 @@ class ClientViewSet(ModelViewSet):
             return queryset.filter(pk=user.pk)
         else:
             return queryset.none()
+    
         
-class ClientAddressViewSet(ModelViewSet):
-    queryset = Client.objects.all()
-    serializer_class = ClientAddressSerializer
-    permission_classes = [IsAuthenticated]
+class UserAddressViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserAddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
@@ -66,7 +68,7 @@ class ClientAddressViewSet(ModelViewSet):
         
 
 class CartViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CartSerializer
     
     def get_queryset(self):

@@ -5,6 +5,7 @@ from product.products.products_serializers import ProductClusterSerializer
 
 class OfferSerializer(serializers.ModelSerializer):
     product = ProductClusterSerializer(many=True, read_only=True)
+    image = serializers.ImageField(use_url = True)
     class Meta:
         model = Offer
         fields = ['id', 'name','is_active', 'image', 'product']
