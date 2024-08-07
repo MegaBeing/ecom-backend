@@ -105,7 +105,6 @@ class UserAddressViewSet(ModelViewSet):
 class CartViewSet(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CartSerializer
-    
     def get_queryset(self):
         return Cart.objects.filter(client=self.request.user)
     
@@ -116,7 +115,7 @@ class CartViewSet(ModelViewSet):
             obj = Cart.objects.create(client=self.request.user)
         return obj
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['post'],url_path='add-to-cart')
     def add_to_cart(self, request):
         cart = self.get_object()
         product_id = request.data.get('product_id')
@@ -133,20 +132,37 @@ class CartViewSet(ModelViewSet):
             return Response({'message': 'Quantity must be a valid integer.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            product = SingleProduct.objects.get(pk=product_id)
+            product = SingleProduct.objects.get(pk=product_id,in_stock=True)
         except SingleProduct.DoesNotExist:
             return Response({'message': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
-
         try:
-            with transaction.atomic():
-                cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-                cart_item.quantity += quantity
-                cart_item.save()
-            return Response({'message': 'Product added to cart successfully'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'message': f'Error adding product to cart: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            cart_item = CartItem.objects.get(cart=cart, product=product)
+            try:
+                with transaction.atomic():
+                    cart_item.quantity += 1
+                    cart_item.total_amount += product.price
+                    cart.total_amount += product.price
+                    cart_item.save()
+                    cart.save()
+                return Response({'message': 'Cart Product Quantity Incremented'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'message': f'Error Incrementing Cart Product Quantity: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except CartItem.DoesNotExist: 
+            try:
+                with transaction.atomic():
+                    cart_item = CartItem.objects.create(
+                        cart=cart, 
+                        product=product,
+                        quantity=quantity,
+                        total_amount=product.price * quantity
+                    )
+                    cart.total_amount += cart_item.total_amount
+                    cart.save()
+                return Response({'message': 'Product added to cart successfully'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'message': f'Error adding product to cart: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['delete'],url_path='remove-from-cart')
     def remove_from_cart(self, request):
         cart = self.get_object()
         product_id = request.data.get('product_id')
@@ -166,7 +182,14 @@ class CartViewSet(ModelViewSet):
 
         try:
             with transaction.atomic():
-                cart_item.delete()
+                if(cart_item.quantity > 1):
+                    cart_item.quantity -= 1
+                    cart_item.total_amount -= product.price
+                    cart.total_amount -= product.price
+                    cart_item.save()
+                    cart.save()
+                else:
+                    cart_item.delete()
             return Response({'message': 'Cart item deleted'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'message': f'Error deleting the cart item: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

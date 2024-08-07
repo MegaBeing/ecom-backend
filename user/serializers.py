@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
-from .models import User,Address,Cart
+from .models import User,Address,Cart,CartItem
+from product.products.products_serializers import ProductSerializer
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -40,9 +41,13 @@ class UserAddressSerializer(ModelSerializer):
             shipping_address.save()
         return instance
     
-    
+class CartItemSerializer(ModelSerializer):
+    product = ProductSerializer(many=False)
+    class Meta:
+        model = CartItem
+        fields = ['id','quantity','total_amount','product']
 class CartSerializer(ModelSerializer):
+    cart_items = CartItemSerializer(many=True,read_only=True)
     class Meta:
         model = Cart
-        fields = '__all__'
-
+        fields = ['id','client','total_amount', 'cart_items']

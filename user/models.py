@@ -43,6 +43,7 @@ class Cart(models.Model):
     updated_at = models.DateTimeField(auto_now=True,null=True)
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name='cart_items')
     product = models.ForeignKey(SingleProduct, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
