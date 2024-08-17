@@ -57,7 +57,6 @@ class UserSignUpView(APIView):
         except Exception as e:
             return Response({'message': f'Error creating user: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        
 class UserAddressViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserAddressSerializer
@@ -78,7 +77,7 @@ class UserAddressViewSet(ModelViewSet):
         serializer = self.serializer_class(user, data = data, partial = True)
         if serializer.is_valid():
             try:
-                with transaction.atomic():
+                with transaction.anavbartomic():
                     serializer.save()
                 return Response({'message':'Address Created'},status = status.HTTP_200_OK)
             except Exception as e:
@@ -112,84 +111,73 @@ class CartViewSet(ModelViewSet):
         queryset = self.get_queryset()
         obj = queryset.first()
         if not obj:
-            obj = Cart.objects.create(client=self.request.user)
+            try: 
+                with transaction.atomic():
+                    obj = Cart.objects.create(client=self.request.user)
+            except Exception as e:
+                return Response({'message': f'Error creating cart for the user: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return obj
 
-    @action(detail=False, methods=['post'],url_path='add-to-cart')
+    @action(detail=False, methods=['POST'],url_path='add-to-cart')
     def add_to_cart(self, request):
         cart = self.get_object()
         product_id = request.data.get('product_id')
-        quantity = request.data.get('quantity')
-
-        if not product_id or not quantity:
-            return Response({'message': 'Invalid request. Please provide product_id and quantity.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            quantity = int(quantity)
-            if quantity <= 0:
-                return Response({'message': 'Quantity must be a positive integer.'}, status=status.HTTP_400_BAD_REQUEST)
-        except ValueError:
-            return Response({'message': 'Quantity must be a valid integer.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            product = SingleProduct.objects.get(pk=product_id,in_stock=True)
-        except SingleProduct.DoesNotExist:
-            return Response({'message': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            cart_item = CartItem.objects.get(cart=cart, product=product)
+        
+        if not product_id:
+            return Response({'message': 'Product id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        product = SingleProduct.objects.filter(id=product_id).first()
+        
+        if not product:
+            return Response({'message': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, product = product)
+        if created:
+            try: 
+                with transaction.atomic():
+                    cart_item.quantity = 1
+                    cart_item.total_amount += product.price
+                    cart_item.save()
+                    cart.total_amount += cart_item.product.price
+                    cart.save()
+                return Response({'message': 'Product added to cart'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'message': f'Error adding product to cart: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
             try:
                 with transaction.atomic():
                     cart_item.quantity += 1
                     cart_item.total_amount += product.price
-                    cart.total_amount += product.price
                     cart_item.save()
+                    cart.total_amount += cart_item.product.price
                     cart.save()
-                return Response({'message': 'Cart Product Quantity Incremented'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Product quantity increased in cart'}, status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({'message': f'Error Incrementing Cart Product Quantity: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except CartItem.DoesNotExist: 
-            try:
-                with transaction.atomic():
-                    cart_item = CartItem.objects.create(
-                        cart=cart, 
-                        product=product,
-                        quantity=quantity,
-                        total_amount=product.price * quantity
-                    )
-                    cart.total_amount += cart_item.total_amount
-                    cart.save()
-                return Response({'message': 'Product added to cart successfully'}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({'message': f'Error adding product to cart: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'message': f'Error increasing product (id:{product_id}) quantity in cart: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    @action(detail=False, methods=['delete'],url_path='remove-from-cart')
+    @action(detail=False, methods=['DELETE'],url_path='remove-from-cart')
     def remove_from_cart(self, request):
-        cart = self.get_object()
+        cart  = self.get_object()
         product_id = request.data.get('product_id')
-
         if not product_id:
-            return Response({'message': 'Invalid request. Please provide product_id.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            product = SingleProduct.objects.get(pk=product_id)
-        except SingleProduct.DoesNotExist:
-            return Response({'message': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            cart_item = CartItem.objects.get(cart=cart, product=product)
-        except CartItem.DoesNotExist:
-            return Response({'message': 'No such item found in cart'}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
+            return Response({'message': 'Product id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        product = SingleProduct.objects.filter(id=product_id).first()
+        if not product: 
+            return Response({'message': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+        cart_item = CartItem.objects.filter(cart=cart, product = product).first()
+        if not cart_item:
+            return Response({'message': 'Product not found in cart'}, status=status.HTTP_404_NOT_FOUND)
+        try: 
             with transaction.atomic():
-                if(cart_item.quantity > 1):
-                    cart_item.quantity -= 1
-                    cart_item.total_amount -= product.price
+                if cart_item.quantity == 1:
+                    cart_item.delete()
                     cart.total_amount -= product.price
-                    cart_item.save()
                     cart.save()
                 else:
-                    cart_item.delete()
-            return Response({'message': 'Cart item deleted'}, status=status.HTTP_200_OK)
+                    cart_item.quantity -= 1
+                    cart_item.total_amount -= product.price
+                    cart_item.save()
+                    cart.total_amount -= product.price
+                    cart.save()
+            return Response({'message':'Decremented or Removed from the cart'},status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'message': f'Error deleting the cart item: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'message': f'Error Decreasing/Removing product (id:{product_id}) quantity from the cart: {str(e)}'},status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+                    
