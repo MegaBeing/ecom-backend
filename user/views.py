@@ -1,9 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.decorators import action
-from .models import User, Cart , CartItem
+from .models import User, Cart , CartItem, Address
 from product.products.products_models import SingleProduct
-from .serializers import UserSerializer, UserAddressSerializer, CartSerializer 
+from .serializers import UserSerializer, AddressSerializer, CartSerializer
 from rest_framework import permissions
 from django.db import transaction
 from rest_framework import status
@@ -57,49 +57,21 @@ class UserSignUpView(APIView):
         except Exception as e:
             return Response({'message': f'Error creating user: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-class UserAddressViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserAddressSerializer
-    permission_classes = [permissions.IsAuthenticated,]
+class AddressViewSet(ModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
     
     def get_queryset(self):
         user = self.request.user
         queryset = self.queryset
         if user.is_authenticated:
-            return queryset.filter(pk=user.pk)
+            return queryset.filter(user=user)
         else:
             return queryset.none()
-    
-    @action(detail=True, methods=['POST'])
-    def create_address(self,request,pk=None):
-        user = self.get_queryset()
-        data = request.data 
-        serializer = self.serializer_class(user, data = data, partial = True)
-        if serializer.is_valid():
-            try:
-                with transaction.anavbartomic():
-                    serializer.save()
-                return Response({'message':'Address Created'},status = status.HTTP_200_OK)
-            except Exception as e:
-                return Response({'message':f'Error creating address for the user: {str(e)}'},status = status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer.error, status = status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=True, methods=['PUT'])
-    def update_address(self, request, pk=None):
-        user = self.get_queryset()
-        data = request.data 
-        serializer = self.serializer_class(user, data = data, partial = True)
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    serializer.save()
-                return Response({'message': 'Shipping address updated successfully'}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({'message': f'Error updating the shipping address: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
 class CartViewSet(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]

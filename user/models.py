@@ -3,6 +3,16 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 from product.products.products_models import ProductCluster,SingleProduct
 
+class User(AbstractUser): 
+    is_active = models.BooleanField(default=True)
+    phone_number = models.CharField(validators=[MinLengthValidator(10)], max_length=15,null=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True)
+    
+    def __str__(self) -> str:
+        return f'{self.first_name} - {self.last_name if self.last_name else self.email}'
+    class Meta:
+        permissions = [('can_order', 'can place orders'),]
 class Address(models.Model):
     pincode = models.PositiveIntegerField(null=False)
     address_line1 = models.CharField(max_length=200, null=False)
@@ -12,17 +22,7 @@ class Address(models.Model):
     country = models.CharField(max_length=100, null=False)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
     updated_at = models.DateTimeField(auto_now=True,null=True)
-class User(AbstractUser): 
-    is_active = models.BooleanField(default=True)
-    phone_number = models.CharField(validators=[MinLengthValidator(10)], max_length=15,null=True)
-    shipping_address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='user_address', null=True)
-    created_at = models.DateTimeField(auto_now_add=True,null=True)
-    updated_at = models.DateTimeField(auto_now=True,null=True)
-    
-    def __str__(self) -> str:
-        return f'{self.first_name} - {self.last_name if self.last_name else self.email}'
-    class Meta:
-        permissions = [('can_order', 'can place orders'),]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
 class Reviews(models.Model):
     rating = models.PositiveIntegerField(null=False)
     description = models.TextField(null=True)
