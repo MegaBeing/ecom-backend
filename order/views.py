@@ -3,7 +3,6 @@ from rest_framework.decorators import action
 from .models import Order
 from rest_framework.permissions import IsAuthenticated
 from .serializers import OrderSerializer
-from .environment import API_AUTH,SHIPROCKET_URLS,SHIPROCKET_REQ_HEADER
 from user.models import User
 import requests
 from rest_framework.response import Response
@@ -14,7 +13,6 @@ class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
-    SHIPROCKET_API_TOKEN = API_AUTH['SHIPROCKET_API_TOKEN']
-
+    http_method_names = ['get', 'post', 'delete', 'head', 'options']
     def get_queryset(self):
-        return self.queryset.filter(client=self.request.user)
+        return self.queryset.filter(user=self.request.user)
