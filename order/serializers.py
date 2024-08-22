@@ -12,9 +12,9 @@ class OrderSerializer(ModelSerializer):
     
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
-        user = User.objects.get(pk = self.context['request'].user)
+        # changes when we integrate with Shiprocket
+        '''
         custom_order_payload = CUSTOM_ORDER_PAYLOAD
-        
         headers = SHIPROCKET_REQ_HEADER
         url = SHIPROCKET_URLS['CREATE_ORDER']
         response = requests.request("POST", 
@@ -22,4 +22,5 @@ class OrderSerializer(ModelSerializer):
                                     headers=headers, 
                                     data=custom_order_payload
                                 )
+        '''
         return super().create(validated_data)
