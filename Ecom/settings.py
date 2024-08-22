@@ -80,13 +80,17 @@ AUTH_USER_MODEL = 'user.User'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Ecom',
         'USER': 'root',
-        'PASSWORD': 'NASa@120402',
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST':'localhost',
         'PORT':'3306',
     }
