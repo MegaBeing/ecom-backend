@@ -37,7 +37,11 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = queryset.filter(in_stock=True)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    @action(detail=False, methods = ['get'], url_path='new-arrivals')
+    def new_arrivals(self, request):
+        queryset = self.get_queryset().order_by('-created_at')[:10]
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 class ProductImageViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductImageSerializer
     queryset = ProductImage.objects.all()

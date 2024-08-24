@@ -24,7 +24,8 @@ class SingleProduct(models.Model):
     # product details
     color = models.CharField(max_length=10)
     in_stock = models.BooleanField(default=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True)
     # properties
     def __str__(self) -> str:
         return f'{self.product.name} - [{self.color}, {self.price}]'
