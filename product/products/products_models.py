@@ -1,14 +1,14 @@
 from django.db import models
-from .products_constants import ProductCategory
+from .products_constants import ProductCategory,CollectionCategory
 class ProductCluster(models.Model):
     name = models.CharField(max_length=50)
     category = models.CharField(choices=ProductCategory.choices, max_length=50,default='Clutch bag')
-    
+    collection = models.CharField(choices=CollectionCategory.choices, max_length=50, default='indian')
+    isExclusive = models.BooleanField(default=False)
     def __str__(self) -> str:
         return f'{self.name} - {self.category}'
     class Meta:
         verbose_name = 'Product Cluster'
-        permissions = [('can_review', 'can review products')]
 
 class SingleProduct(models.Model):
     product = models.ForeignKey(ProductCluster, on_delete=models.CASCADE, related_name='product',null = True)
