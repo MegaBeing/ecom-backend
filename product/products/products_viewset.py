@@ -6,7 +6,6 @@ from rest_framework import status
 from .products_models import SingleProduct, ProductImage
 from .products_serializers import ProductSerializer, ProductImageSerializer
 
-
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SingleProduct.objects.filter(in_stock=True)
     serializer_class = ProductSerializer
@@ -47,6 +46,10 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.get_queryset().order_by('-created_at')[:10]
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def best_seller(self, request):
+        queryset = self.get_queryset()
+        
 class ProductImageViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductImageSerializer
     queryset = ProductImage.objects.all()

@@ -5,6 +5,7 @@ class ProductCluster(models.Model):
     category = models.CharField(choices=ProductCategory.choices, max_length=50,default='Clutch bag')
     collection = models.CharField(choices=CollectionCategory.choices, max_length=50, default='indian')
     isExclusive = models.BooleanField(default=False)
+    isBestSeller = models.BooleanField(default=False)
     def __str__(self) -> str:
         return f'{self.name} - {self.category}'
     class Meta:
