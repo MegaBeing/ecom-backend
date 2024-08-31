@@ -6,6 +6,12 @@ class ProductCluster(models.Model):
     collection = models.CharField(choices=CollectionCategory.choices, max_length=50, default='indian')
     isExclusive = models.BooleanField(default=False)
     isBestSeller = models.BooleanField(default=False)
+    outer_material = models.CharField(max_length=50)
+    inner_material = models.CharField(max_length=50)
+    sling = models.BooleanField(default=False)
+    closer = models.CharField(max_length=50)
+    pocket = models.BooleanField(max_length=50)
+    
     def __str__(self) -> str:
         return f'{self.name} - {self.category}'
     class Meta:

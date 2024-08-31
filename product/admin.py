@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .products.products_models import ProductCluster, SingleProduct, ProductImage
-from .offers.offer_models import Offer
+from .offers.offer_models import Offer, OfferImage
 from .admin_range.range import IntegerRangeFilter
 # Register your models here.
 class ProductImageInline(admin.TabularInline):
@@ -23,14 +23,18 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(SingleProduct,ProductAdmin)
 
 
+class OfferImageInline(admin.TabularInline):
+    model = OfferImage
+    extra = 1
 class OfferAdmin(admin.ModelAdmin):
+    inlines = [OfferImageInline]
     list_display = ['name','is_active']
     filter_horizontal = ('product',)
 admin.site.register(Offer, OfferAdmin)
 
-class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ['alt_text','image']
-admin.site.register(ProductImage,ProductImageAdmin)
+# class ProductImageAdmin(admin.ModelAdmin):
+#     list_display = ['alt_text','image']
+# admin.site.register(ProductImage,ProductImageAdmin)
 class ProductClusterAdmin(admin.ModelAdmin):
     list_display = ['name','category']
 admin.site.register(ProductCluster,ProductClusterAdmin)
