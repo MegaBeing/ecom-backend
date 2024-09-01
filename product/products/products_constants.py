@@ -1,14 +1,14 @@
 class ProductCategory():
-    Clutch_bag = 'Clutch bag'
-    Potlis = 'Potlis'
-    Batua_bag = 'Batua bag'
-    Bridal_bag = 'Bridal bag'
+    Clutch_bag = 'Clutch'
+    Potlis = 'Potli'
+    Batua_bag = 'Batua'
+    Bridal_bag = 'Bridal'
 
     choices = (
-        (Clutch_bag, 'Clutch bag'),
-        (Potlis, 'Potlis'),
-        (Batua_bag, 'Batua bag'),
-        (Bridal_bag, 'Bridal bag'),
+        (Clutch_bag, 'Clutch Bag'),
+        (Potlis, 'Potli Bag'),
+        (Batua_bag, 'Batua Bag'),
+        (Bridal_bag, 'Bridal Bag'),
     )
 class CollectionCategory():
     italian_collection = 'italian'
@@ -16,7 +16,7 @@ class CollectionCategory():
     western_collection = 'western'
     
     choices = (
-        (italian_collection, 'italian collection'),
-        (indian_collection, 'indian collection'),
-        (western_collection, 'western collection'),
+        (italian_collection, 'Italian Collection'),
+        (indian_collection, 'Indian Collection'),
+        (western_collection, 'Western Collection'),
     )

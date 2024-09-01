@@ -14,6 +14,6 @@ class OfferViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.queryset.filter(is_active=True)
         response = list()
         for offer in queryset:
-            image_url = request.build_absolute_uri(offer.image.url)
+            image_url = request.build_absolute_uri(offer.active_image.url)
             response.append({'id': offer.id, 'image': image_url})
         return Response(response)

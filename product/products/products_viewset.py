@@ -21,6 +21,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         color = request.query_params.get('color')
         collection = request.query_params.get('collection')
         is_exclusive = request.query_params.get('is_exclusive')
+        is_best_seller = request.query_params.get('is_best_seller')
         queryset = self.get_queryset()
 
         if search:
@@ -31,6 +32,8 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(product__collection=collection)
         if is_exclusive:
             queryset = queryset.filter(product__isExclusive=True)
+        if is_best_seller:
+            queryset = queryset.filter(product__isBestSeller=True)
         if min_value:
             queryset = queryset.filter(price__gte=float(min_value))
         if max_value:

@@ -11,6 +11,6 @@ class Offer(models.Model):
         return f'{self.name}'
 
 class OfferImage(models.Model):
-    alt_name = models.CharField(max_length=25)
+    alt_name = models.CharField(max_length=25,null=True)
     image = models.ImageField(upload_to='offer')
     offer = models.ForeignKey(Offer,on_delete=models.CASCADE)

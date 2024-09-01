@@ -9,7 +9,7 @@ class OfferImageSerializer(serializers.ModelSerializer):
         fields = ['alt_name','image']
 class OfferSerializer(serializers.ModelSerializer):
     product = ProductClusterSerializer(many=True, read_only=True)
-    image = OfferImageSerializer(many=True,read_only=True)
+    images = OfferImageSerializer(many=True,read_only=True,source = 'offerimage_set')
     class Meta:
         model = Offer
-        fields = ['id', 'name','is_active', 'active_image','image', 'product']
+        fields = ['id', 'name','is_active', 'active_image','images', 'product']
