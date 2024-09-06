@@ -70,6 +70,7 @@ class AddressViewSet(ModelViewSet):
             return queryset.filter(user=user)
         else:
             return queryset.none()
+        
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 

@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 from product.products.products_models import ProductCluster,SingleProduct
-
+from django.core.validators import MinLengthValidator
+from user.constants import AddressTypes
 class User(AbstractUser): 
     is_active = models.BooleanField(default=True)
     phone_number = models.CharField(validators=[MinLengthValidator(10)], max_length=15,null=True)
@@ -13,13 +14,16 @@ class User(AbstractUser):
         return f'{self.first_name} - {self.last_name if self.last_name else self.email}'
     class Meta:
         permissions = [('can_order', 'can place orders'),]
-class Address(models.Model):
-    pincode = models.PositiveIntegerField(null=False)
+class Address(models.Model): 
+    type = models.CharField(max_length=10, choices=AddressTypes.choices,default='home')
+    billing_address_name = models.CharField(max_length=50, null=False)
+    billing_address_phone = models.CharField(max_length = 10, validators=[MinLengthValidator(10)], null=False,default='N.A')
     address_line1 = models.CharField(max_length=200, null=False)
     address_line2 = models.CharField(max_length=200, blank=True)
     city = models.CharField(max_length=100, null=False)
     state = models.CharField(max_length=100, null=False)
     country = models.CharField(max_length=100, null=False)
+    pincode = models.PositiveIntegerField(null=False)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
     updated_at = models.DateTimeField(auto_now=True,null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
